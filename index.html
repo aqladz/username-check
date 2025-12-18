@@ -95,13 +95,29 @@
     <h1>Username Check</h1>
     <p>Check username availability across platforms</p>
 
-    <input type="text" placeholder="Enter username" />
-    <button>Check Availability</button>
+    <!-- Tool Tabs -->
+<div class="tabs">
+  <button class="tab active" data-tab="username">Username</button>
+  <button class="tab" data-tab="score">Profile Score</button>
+  <button class="tab" data-tab="bio">AI Bio</button>
+  <button class="tab" data-tab="highlights">Highlights</button>
+</div>
 
-    <div class="footer">
-      Tool under development
-    </div>
+<div class="tab-content">
+  <div class="content active" id="username">
+    <!-- username tool stays here -->
   </div>
 
-</body>
-</html>
+  <div class="content" id="score">
+    <p>Profile score tool coming soon</p>
+  </div>
+
+  <div class="content" id="bio">
+    <p>AI bio generator coming soon</p>
+  </div>
+
+  <div class="content" id="highlights">
+    <p>Highlights & covers coming soon</p>
+  </div>
+</div>
+
