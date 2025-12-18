@@ -69,6 +69,40 @@
       font-size: 12px;
       color: #9ca3af;
     }
+    /* Tabs system */
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.tab {
+  flex: 1;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  background: rgba(255,255,255,0.08);
+  color: #d1fae5;
+  font-weight: 500;
+  cursor: pointer;
+}
+.tab.active {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #022c22;
+}
+
+.tab-content {
+  margin-top: 14px;
+}
+
+.content {
+  display: none;
+}
+
+.content.active {
+  display: block;
+}
+
   </style>
 </head>
 <body>
