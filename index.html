@@ -24,7 +24,7 @@
     margin-bottom: 20px;
   }
 
-  input[type="text"] {
+  input {
     width: 100%;
     padding: 12px;
     font-size: 16px;
@@ -40,10 +40,6 @@
     display: flex;
     gap: 18px;
     font-size: 14px;
-  }
-
-  .mode label {
-    cursor: pointer;
   }
 
   .score {
@@ -71,6 +67,12 @@
     cursor: pointer;
   }
 
+  .secondary {
+    background: none;
+    border: 1px dashed #333;
+    color: #aaa;
+  }
+
   .results {
     margin-top: 18px;
   }
@@ -90,14 +92,6 @@
     font-size: 12px;
     color: #7f5cff;
     cursor: pointer;
-    user-select: none;
-  }
-
-  .more {
-    background: none;
-    border: 1px dashed #333;
-    color: #aaa;
-    margin-top: 10px;
   }
 </style>
 </head>
@@ -107,7 +101,7 @@
 
   <h1>Username Tool</h1>
 
-  <input id="baseInput" type="text" placeholder="Enter base name" />
+  <input id="baseInput" placeholder="Enter base name" />
 
   <div class="mode">
     <label><input type="radio" name="mode" value="self" checked /> Self Branding</label>
@@ -117,17 +111,18 @@
   <div class="score" id="scoreBox" style="display:none;"></div>
 
   <button id="generateBtn">Generate</button>
+  <button id="resetBtn" class="secondary">Reset Session</button>
 
   <div class="results" id="results"></div>
 
-  <button id="moreBtn" class="more" style="display:none;">Generate 5 More</button>
+  <button id="moreBtn" class="secondary" style="display:none;">Generate 5 More</button>
 
 </div>
 
 <script>
   const used = new Set();
 
-  // Patterns
+  // SELF BRANDING patterns (strict & clean)
   const selfPatterns = [
     b => b + "x",
     b => b + "z",
@@ -135,14 +130,20 @@
     b => b + "zz",
     b => b.slice(0,2) + "." + b.slice(2),
     b => b + "_x",
-    b => b + "v",
-    b => b + b.slice(-1)
+    b => "_" + b,
+    b => "_" + b + "z",
+    b => b + "01",
+    b => b + "_01",
+    b => b + "0"
   ];
 
+  // BRAND patterns
   const brandPatterns = [
     b => b + "co",
     b => b + "studio",
     b => b + "official",
+    b => b + "pro",
+    b => b + "plus",
     b => "get" + b,
     b => b + "hq",
     b => b + ".com",
@@ -151,13 +152,12 @@
     b => b + "store"
   ];
 
-  // Scoring (Hybrid)
   function scoreName(name, mode) {
     let score = 10;
     if (name.length > 12) score -= 2;
     if (name.length < 4) score -= 1;
     if (/[^a-z0-9._]/i.test(name)) score -= 2;
-    if (mode === "self" && /[._]/.test(name)) score -= 0.5;
+    if ((name.match(/_/g) || []).length > 1) score -= 1;
     return Math.max(5, score).toFixed(1);
   }
 
@@ -167,51 +167,59 @@
     return "Average";
   }
 
-  // Generation
+  // FINAL generator (guaranteed 5)
   function generateBatch(base, mode) {
     const pool = mode === "self" ? selfPatterns : brandPatterns;
     const out = [];
+    let attempts = 0;
+    let round = Math.floor(used.size / 5) + 1;
 
-    let i = 0;
-    while (out.length < 5 && i < 60) {
-      const fn = pool[Math.floor(Math.random() * pool.length)];
-      const name = fn(base);
+    while (out.length < 5 && attempts < 400) {
+      let name = pool[Math.floor(Math.random() * pool.length)](base);
+
+      if (used.has(name)) {
+        if (mode === "brand") {
+          name = name + round;
+        } else {
+          attempts++;
+          continue;
+        }
+      }
+
       if (!used.has(name)) {
         used.add(name);
         out.push(name);
       }
-      i++;
+      attempts++;
     }
     return out;
   }
 
-  // Render with Copied ✓ feedback
   function render(names) {
     const box = document.getElementById("results");
     names.forEach(n => {
-      const div = document.createElement("div");
-      div.className = "item";
+      const row = document.createElement("div");
+      row.className = "item";
 
-      const nameSpan = document.createElement("span");
-      nameSpan.textContent = n;
+      const name = document.createElement("span");
+      name.textContent = n;
 
-      const copyBtn = document.createElement("span");
-      copyBtn.className = "copy";
-      copyBtn.textContent = "Copy";
-
-      copyBtn.onclick = () => {
+      const copy = document.createElement("span");
+      copy.className = "copy";
+      copy.textContent = "Copy";
+      copy.onclick = () => {
         navigator.clipboard.writeText(n);
-        copyBtn.textContent = "Copied ✓";
-        setTimeout(() => copyBtn.textContent = "Copy", 1000);
+        copy.textContent = "Copied ✓";
+        setTimeout(() => copy.textContent = "Copy", 1000);
       };
 
-      div.appendChild(nameSpan);
-      div.appendChild(copyBtn);
-      box.appendChild(div);
+      row.appendChild(name);
+      row.appendChild(copy);
+      box.appendChild(row);
     });
   }
 
-  function generate(reset = false) {
+  function generate(reset=false) {
     const base = document.getElementById("baseInput").value.trim().toLowerCase();
     if (!base) return;
 
@@ -234,10 +242,13 @@
 
   document.getElementById("generateBtn").onclick = () => generate(true);
   document.getElementById("moreBtn").onclick = () => generate(false);
+  document.getElementById("resetBtn").onclick = () => {
+    used.clear();
+    document.getElementById("results").innerHTML = "";
+    document.getElementById("moreBtn").style.display = "none";
+  };
 </script>
 
 </body>
 </html>
 
-
-          
