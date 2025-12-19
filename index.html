@@ -1,160 +1,243 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Username Check</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Username Tool</title>
 
-  <!-- Google Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #0b0b0f;
+    color: #eaeaf0;
+  }
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+  .container {
+    max-width: 520px;
+    margin: 40px auto;
+    padding: 24px;
+  }
 
-    body {
-      margin: 0;
-      height: 100vh;
-      font-family: 'Inter', sans-serif;
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #ffffff;
-    }
+  h1 {
+    font-size: 22px;
+    margin-bottom: 20px;
+  }
 
-    .card {
-      background: rgba(255, 255, 255, 0.06);
-      backdrop-filter: blur(14px);
-      border-radius: 16px;
-      padding: 32px;
-      width: 90%;
-      max-width: 420px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-      text-align: center;
-    }
+  input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+    background: #16161d;
+    color: #fff;
+  }
 
-    .card h1 {
-      margin: 0 0 10px;
-      font-size: 26px;
-      font-weight: 600;
-      letter-spacing: 0.3px;
-    }
+  .mode {
+    margin: 16px 0;
+    display: flex;
+    gap: 18px;
+    font-size: 14px;
+  }
 
-    .card p {
-      margin: 0 0 24px;
-      font-size: 14px;
-      color: #d1d5db;
-    }
+  .mode label {
+    cursor: pointer;
+  }
 
-    input {
-      width: 100%;
-      padding: 14px 16px;
-      border-radius: 10px;
-      border: none;
-      outline: none;
-      font-size: 15px;
-      margin-bottom: 16px;
-      background: rgba(255, 255, 255, 0.15);
-      color: #ffffff;
-    }
+  .score {
+    margin: 18px 0;
+    padding: 14px;
+    background: #16161d;
+    border-radius: 10px;
+    font-size: 14px;
+  }
 
-    input::placeholder {
-      color: #cbd5e1;
-    }
+  .score strong {
+    font-size: 18px;
+  }
 
-    .footer {
-      margin-top: 18px;
-      font-size: 12px;
-      color: #9ca3af;
-    }
-    /* Tabs system */
-.tabs {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
-}
+  button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 14px;
+    background: linear-gradient(135deg,#7f5cff,#00d4ff);
+    color: #000;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+  }
 
-.tab {
-  flex: 1;
-  padding: 10px;
-  border-radius: 10px;
-  border: none;
-  background: rgba(255,255,255,0.08);
-  color: #d1fae5;
-  font-weight: 500;
-  cursor: pointer;
-}
-.tab.active {
-  background: linear-gradient(135deg, #10b981, #059669);
-  color: #022c22;
-}
+  .results {
+    margin-top: 18px;
+  }
 
-.tab-content {
-  margin-top: 14px;
-}
+  .item {
+    background: #16161d;
+    padding: 12px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 15px;
+  }
 
-.content {
-  display: none;
-}
+  .copy {
+    font-size: 12px;
+    color: #7f5cff;
+    cursor: pointer;
+    user-select: none;
+  }
 
-.content.active {
-  display: block;
-}
-
-  </style>
+  .more {
+    background: none;
+    border: 1px dashed #333;
+    color: #aaa;
+    margin-top: 10px;
+  }
+</style>
 </head>
+
 <body>
+<div class="container">
 
-  <div class="card">
-    <h1>Username Check</h1>
-    <p>Check username availability across platforms</p>
+  <h1>Username Tool</h1>
 
-    <!-- Tool Tabs -->
-<div class="tabs">
-  <button class="tab active" data-tab="username">Username</button>
-  <button class="tab" data-tab="score">Profile Score</button>
-  <button class="tab" data-tab="bio">AI Bio</button>
-  <button class="tab" data-tab="highlights">Highlights</button>
+  <input id="baseInput" type="text" placeholder="Enter base name" />
+
+  <div class="mode">
+    <label><input type="radio" name="mode" value="self" checked /> Self Branding</label>
+    <label><input type="radio" name="mode" value="brand" /> A Brand</label>
+  </div>
+
+  <div class="score" id="scoreBox" style="display:none;"></div>
+
+  <button id="generateBtn">Generate</button>
+
+  <div class="results" id="results"></div>
+
+  <button id="moreBtn" class="more" style="display:none;">Generate 5 More</button>
+
 </div>
 
-<div class="tab-content">
-  <div class="content active" id="username">
-    <!-- username tool stays here -->
-  </div>
+<script>
+  const used = new Set();
 
-  <div class="content" id="score">
-    <p>Profile score tool coming soon</p>
-  </div>
+  // Patterns
+  const selfPatterns = [
+    b => b + "x",
+    b => b + "z",
+    b => b + "dz",
+    b => b + "zz",
+    b => b.slice(0,2) + "." + b.slice(2),
+    b => b + "_x",
+    b => b + "v",
+    b => b + b.slice(-1)
+  ];
 
-  <div class="content" id="bio">
-    <p>AI bio generator coming soon</p>
-  </div>
+  const brandPatterns = [
+    b => b + "co",
+    b => b + "studio",
+    b => b + "official",
+    b => "get" + b,
+    b => b + "hq",
+    b => b + ".com",
+    b => b + ".io",
+    b => b + ".app",
+    b => b + "store"
+  ];
 
-  <div class="content" id="highlights">
-    <p>Highlights & covers coming soon</p>
-  </div>
-</div>
+  // Scoring (Hybrid)
+  function scoreName(name, mode) {
+    let score = 10;
+    if (name.length > 12) score -= 2;
+    if (name.length < 4) score -= 1;
+    if (/[^a-z0-9._]/i.test(name)) score -= 2;
+    if (mode === "self" && /[._]/.test(name)) score -= 0.5;
+    return Math.max(5, score).toFixed(1);
+  }
 
-    <script>
-  const tabs = document.querySelectorAll(".tab");
-  const contents = document.querySelectorAll(".content");
+  function labelFromScore(score, mode) {
+    if (score >= 8.5) return mode === "brand" ? "Strong Brand Name" : "Strong Personal Brand";
+    if (score >= 7) return "Good Choice";
+    return "Average";
+  }
 
-  tabs.forEach(tab => {
-    tab.addEventListener("click", () => {
-      // remove active state
-      tabs.forEach(t => t.classList.remove("active"));
-      contents.forEach(c => c.classList.remove("active"));
+  // Generation
+  function generateBatch(base, mode) {
+    const pool = mode === "self" ? selfPatterns : brandPatterns;
+    const out = [];
 
-      // activate selected tab + content
-      tab.classList.add("active");
-      const target = tab.getAttribute("data-tab");
-      document.getElementById(target).classList.add("active");
+    let i = 0;
+    while (out.length < 5 && i < 60) {
+      const fn = pool[Math.floor(Math.random() * pool.length)];
+      const name = fn(base);
+      if (!used.has(name)) {
+        used.add(name);
+        out.push(name);
+      }
+      i++;
+    }
+    return out;
+  }
+
+  // Render with Copied ✓ feedback
+  function render(names) {
+    const box = document.getElementById("results");
+    names.forEach(n => {
+      const div = document.createElement("div");
+      div.className = "item";
+
+      const nameSpan = document.createElement("span");
+      nameSpan.textContent = n;
+
+      const copyBtn = document.createElement("span");
+      copyBtn.className = "copy";
+      copyBtn.textContent = "Copy";
+
+      copyBtn.onclick = () => {
+        navigator.clipboard.writeText(n);
+        copyBtn.textContent = "Copied ✓";
+        setTimeout(() => copyBtn.textContent = "Copy", 1000);
+      };
+
+      div.appendChild(nameSpan);
+      div.appendChild(copyBtn);
+      box.appendChild(div);
     });
-  });
+  }
+
+  function generate(reset = false) {
+    const base = document.getElementById("baseInput").value.trim().toLowerCase();
+    if (!base) return;
+
+    if (reset) {
+      used.clear();
+      document.getElementById("results").innerHTML = "";
+    }
+
+    const mode = document.querySelector("input[name=mode]:checked").value;
+    const score = scoreName(base, mode);
+
+    document.getElementById("scoreBox").style.display = "block";
+    document.getElementById("scoreBox").innerHTML =
+      `<strong>${score} / 10</strong> — ${labelFromScore(score, mode)}<br>
+       ▣ Pronunciation ▣ Memorability ▣ Clean spelling ▣ Multi-platform`;
+
+    render(generateBatch(base, mode));
+    document.getElementById("moreBtn").style.display = "block";
+  }
+
+  document.getElementById("generateBtn").onclick = () => generate(true);
+  document.getElementById("moreBtn").onclick = () => generate(false);
 </script>
 
 </body>
 </html>
 
+
+          
