@@ -95,25 +95,9 @@
 
     <button class="secondary" onclick="generateMore()">Generate 5 More</button>
   </div>
-
-  <div class="content" id="score"><div class="soon">Profile Score<br>Coming soon</div></div>
-  <div class="content" id="bio"><div class="soon">AI Bio Generator<br>Coming soon</div></div>
-  <div class="content" id="highlights"><div class="soon">Highlights & Covers<br>Coming soon</div></div>
 </div>
 
 <script>
-  const tabs = document.querySelectorAll('.tab');
-  const contents = document.querySelectorAll('.content');
-
-  tabs.forEach(tab => {
-    tab.onclick = () => {
-      tabs.forEach(t => t.classList.remove('active'));
-      contents.forEach(c => c.classList.remove('active'));
-      tab.classList.add('active');
-      document.getElementById(tab.dataset.tab).classList.add('active');
-    };
-  });
-
   let generated = new Set();
 
   function resetSession() {
@@ -129,10 +113,9 @@
     const base = document.getElementById('baseName').value.trim().toLowerCase();
     if (!base || generated.size >= 50) return;
 
-    const mode = document.querySelector('input[name="mode"]:checked').value;
     const container = document.getElementById('results');
 
-    // 🔒 EXISTING 11 OUTPUTS — UNTOUCHED
+    // 🔒 EXISTING LOGIC (UNCHANGED)
     const selfPool = [
       base + 'x',
       base + 'z',
@@ -147,36 +130,36 @@
       base + base.slice(-1)
     ];
 
-    // ➕ NEW UPLIFT: RAZE (only if base starts with 'r')
+    // 🔒 RAZE (only for r*)
     if (base.startsWith('r')) {
-      const razeVariants = [
+      [
         base + 'raze',
         base + '_raze',
         '_' + base + 'raze',
         base + 'raze_'
-      ];
-
-      for (let v of razeVariants) {
+      ].forEach(v => {
         if (!v.includes('__')) selfPool.push(v);
-      }
+      });
     }
 
-    const brandPool = [
-      base + 'studio',
-      base + 'hq',
-      base + 'official',
-      base + 'plus',
-      'get' + base,
-      base + '.com',
-      base + '.io',
-      base + '.app',
-      base + 'co'
-    ];
+    // ➕ NEW GLOBAL KEYWORDS
+    const keywords = ['zen','core','shades','vibes','spark','stark','glitch'];
 
-    const pool = mode === 'self' ? selfPool : brandPool;
+    keywords.forEach(k => {
+      const variants = [
+        base + k,
+        base + '_' + k,
+        '_' + base + k,
+        base + k + '_'
+      ];
+
+      variants.forEach(v => {
+        if (!v.includes('__')) selfPool.push(v);
+      });
+    });
 
     let added = 0;
-    for (let name of pool) {
+    for (let name of selfPool) {
       if (generated.size >= 50 || added >= count) break;
       if (generated.has(name)) continue;
 
@@ -186,13 +169,11 @@
       const row = document.createElement('div');
       row.className = 'result';
       row.innerHTML = `<span>${name}</span><span class="copy">Copy</span>`;
-
       row.querySelector('.copy').onclick = () => {
         navigator.clipboard.writeText(name);
         row.querySelector('.copy').innerText = 'Copied';
         setTimeout(() => row.querySelector('.copy').innerText = 'Copy', 1000);
       };
-
       container.appendChild(row);
     }
   }
@@ -201,8 +182,6 @@
 </body>
 </html>
 
-      
-      
  
   
 
