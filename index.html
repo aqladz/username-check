@@ -19,7 +19,6 @@
       justify-content: center;
       color: #fff;
     }
-
     .card {
       width: 92%;
       max-width: 440px;
@@ -29,110 +28,43 @@
       padding: 28px;
       box-shadow: 0 25px 60px rgba(0,0,0,0.4);
     }
-
-    h1 {
-      margin: 0 0 8px;
-      font-size: 26px;
-      text-align: center;
-    }
-
-    .subtitle {
-      text-align: center;
-      font-size: 14px;
-      color: #b8c2d8;
-      margin-bottom: 20px;
-    }
-
-    .tabs {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 18px;
-    }
-
+    h1 { margin: 0 0 8px; font-size: 26px; text-align: center; }
+    .subtitle { text-align: center; font-size: 14px; color: #b8c2d8; margin-bottom: 20px; }
+    .tabs { display: flex; gap: 8px; margin-bottom: 18px; }
     .tab {
-      flex: 1;
-      padding: 10px;
-      border-radius: 10px;
+      flex: 1; padding: 10px; border-radius: 10px;
       background: rgba(255,255,255,0.08);
-      border: none;
-      color: #cfd6ea;
-      font-weight: 600;
-      cursor: pointer;
+      border: none; color: #cfd6ea; font-weight: 600; cursor: pointer;
     }
-
     .tab.active {
       background: linear-gradient(135deg,#22c55e,#16a34a);
       color: #022c22;
     }
-
     .content { display: none; }
     .content.active { display: block; }
-
     input {
-      width: 100%;
-      padding: 14px;
-      border-radius: 12px;
-      border: none;
-      outline: none;
-      font-size: 15px;
-      margin-bottom: 14px;
-      background: rgba(255,255,255,0.08);
-      color: #fff;
+      width: 100%; padding: 14px; border-radius: 12px;
+      border: none; outline: none; font-size: 15px;
+      margin-bottom: 14px; background: rgba(255,255,255,0.08); color: #fff;
     }
-
-    .mode {
-      display: flex;
-      gap: 14px;
-      margin-bottom: 16px;
-      font-size: 14px;
-    }
-
+    .mode { display: flex; gap: 14px; margin-bottom: 16px; font-size: 14px; }
     button.primary {
-      width: 100%;
-      padding: 14px;
-      border-radius: 14px;
-      border: none;
-      background: linear-gradient(135deg,#6366f1,#22d3ee);
-      color: #02131a;
-      font-weight: 700;
-      font-size: 16px;
-      cursor: pointer;
-      margin-bottom: 12px;
+      width: 100%; padding: 14px; border-radius: 14px;
+      border: none; background: linear-gradient(135deg,#6366f1,#22d3ee);
+      color: #02131a; font-weight: 700; font-size: 16px; cursor: pointer; margin-bottom: 12px;
     }
-
     button.secondary {
-      width: 100%;
-      padding: 12px;
-      border-radius: 14px;
+      width: 100%; padding: 12px; border-radius: 14px;
       border: 1px dashed rgba(255,255,255,0.2);
-      background: transparent;
-      color: #9fb0ff;
-      cursor: pointer;
-      margin-bottom: 16px;
+      background: transparent; color: #9fb0ff; cursor: pointer; margin-bottom: 16px;
     }
-
     .result {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      display: flex; justify-content: space-between; align-items: center;
       background: rgba(255,255,255,0.07);
-      padding: 12px 14px;
-      border-radius: 12px;
-      margin-bottom: 10px;
+      padding: 12px 14px; border-radius: 12px; margin-bottom: 10px;
     }
-
-    .copy {
-      color: #8b8cff;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .soon {
-      text-align: center;
-      padding: 40px 0;
-      color: #b8c2d8;
-      font-size: 15px;
-    }
+    .copy { color: #8b8cff; font-weight: 600; cursor: pointer; }
+    .soon { text-align: center; padding: 40px 0; color: #b8c2d8; font-size: 15px; }
   </style>
 </head>
 <body>
@@ -200,7 +132,7 @@
     const mode = document.querySelector('input[name="mode"]:checked').value;
     const container = document.getElementById('results');
 
-    // 🔒 EXISTING 10 OUTPUTS — UNTOUCHED
+    // 🔒 EXISTING 11 OUTPUTS — UNTOUCHED
     const selfPool = [
       base + 'x',
       base + 'z',
@@ -211,15 +143,23 @@
       base + '_01',
       base + '01',
       base + '0',
-      base.replace(/(.)(.*)/,'$1.$2')
+      base.replace(/(.)(.*)/,'$1.$2'),
+      base + base.slice(-1)
     ];
 
-    // ➕ NEW RULE: double last letter
-    const lastChar = base.slice(-1);
-    const doubleLast = base + lastChar;
+    // ➕ NEW UPLIFT: RAZE (only if base starts with 'r')
+    if (base.startsWith('r')) {
+      const razeVariants = [
+        base + 'raze',
+        base + '_raze',
+        '_' + base + 'raze',
+        base + 'raze_'
+      ];
 
-    // add safely without touching existing logic
-    selfPool.push(doubleLast);
+      for (let v of razeVariants) {
+        if (!v.includes('__')) selfPool.push(v);
+      }
+    }
 
     const brandPool = [
       base + 'studio',
@@ -261,6 +201,8 @@
 </body>
 </html>
 
+      
+      
  
   
 
