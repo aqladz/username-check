@@ -14,139 +14,68 @@ min-height:100vh;
 font-family:'Inter',sans-serif;
 background:linear-gradient(135deg,#0b1220,#0e1b2a);
 display:flex;
+align-items:center;
 justify-content:center;
-align-items:flex-start;
-padding-top:60px;
 color:#fff
 }
-
-/* MAIN CONTAINER (OLD UI STYLE) */
-.app{
-width:94%;
-max-width:460px;
-background:#121826;
-border-radius:22px;
-padding:22px;
-box-shadow:0 30px 80px rgba(0,0,0,.6)
-}
-
-h1{
-margin:0;
-font-size:26px;
-font-weight:700;
-text-align:center
-}
-.subtitle{
-text-align:center;
-margin-top:6px;
-font-size:14px;
-color:#9aa4bf
-}
-
-/* TABS */
-.tabs{
-display:flex;
-gap:10px;
-margin:20px 0;
-}
-.tab{
-flex:1;
-padding:12px 0;
-border-radius:14px;
-background:#1c2436;
-border:none;
-color:#aab2c8;
-font-weight:600;
-cursor:pointer
-}
-.tab.active{
-background:#22c55e;
-color:#022c22
-}
-
-/* INPUT CARD */
 .card{
-background:#1a2236;
+width:92%;
+max-width:440px;
+background:rgba(255,255,255,.06);
+backdrop-filter:blur(14px);
 border-radius:18px;
-padding:18px;
+padding:28px;
+box-shadow:0 25px 60px rgba(0,0,0,.4);
+position:relative
 }
-
+h1{text-align:center;margin:0 0 6px}
+.subtitle{text-align:center;color:#b8c2d8;font-size:14px;margin-bottom:18px}
+.tabs{display:flex;gap:8px;margin-bottom:18px}
+.tab{
+flex:1;padding:10px;border-radius:10px;
+background:rgba(255,255,255,.08);
+border:none;color:#cfd6ea;font-weight:600;cursor:pointer
+}
+.tab.active{background:linear-gradient(135deg,#22c55e,#16a34a);color:#022c22}
+.content{display:none}
+.content.active{display:block}
 input{
-width:100%;
-padding:14px;
-border-radius:14px;
-border:none;
-background:#222b40;
-color:#fff;
-font-size:15px;
-margin-bottom:16px
+width:100%;padding:14px;border-radius:12px;
+border:none;background:rgba(255,255,255,.08);
+color:#fff;font-size:15px;margin-bottom:14px
 }
-
-/* MODE */
-.mode{
-display:flex;
-justify-content:space-between;
-margin-bottom:18px
-}
-.mode label{
-display:flex;
-align-items:center;
-gap:8px;
-font-size:14px;
-color:#cfd6ea
-}
-
-/* BUTTONS */
+.mode{display:flex;gap:14px;margin-bottom:16px}
 button.primary{
-width:100%;
-padding:15px;
-border-radius:16px;
-border:none;
-background:linear-gradient(135deg,#5b7cff,#22d3ee);
-color:#02131a;
-font-weight:700;
-font-size:16px;
-cursor:pointer;
-margin-bottom:14px
+width:100%;padding:14px;border-radius:14px;
+border:none;background:linear-gradient(135deg,#6366f1,#22d3ee);
+color:#02131a;font-weight:700;font-size:16px;cursor:pointer;margin-bottom:12px
 }
 button.secondary{
-width:100%;
-padding:13px;
-border-radius:16px;
-border:1px dashed #2f3a57;
-background:transparent;
-color:#9fb0ff;
-cursor:pointer;
-margin-bottom:14px
+width:100%;padding:12px;border-radius:14px;
+border:1px dashed rgba(255,255,255,.25);
+background:transparent;color:#9fb0ff;cursor:pointer
 }
-
-/* RESULTS */
 .result{
-display:flex;
-justify-content:space-between;
-align-items:center;
-background:#222b40;
-padding:13px 14px;
-border-radius:14px;
-margin-bottom:10px
+display:flex;justify-content:space-between;align-items:center;
+background:rgba(255,255,255,.07);
+padding:12px 14px;border-radius:12px;margin-bottom:10px
 }
-.copy{
-color:#8ea2ff;
-font-weight:600;
-cursor:pointer
-}
+.copy{color:#8b8cff;font-weight:600;cursor:pointer}
+.soon{text-align:center;padding:40px 0;color:#b8c2d8}
 
-.soon{
-text-align:center;
-padding:50px 0;
-color:#9aa4bf
+/* 👇 ONLY NEW PART — POSITION FIX */
+.load-more{
+position:sticky;
+bottom:0;
+margin-top:16px;
+background:linear-gradient(180deg,rgba(11,18,32,0),rgba(11,18,32,.85) 40%);
+padding-top:12px
 }
 </style>
 </head>
 
 <body>
-
-<div class="app">
+<div class="card">
 <h1>Username Check</h1>
 <div class="subtitle">Check username availability across platforms</div>
 
@@ -157,10 +86,8 @@ color:#9aa4bf
 <button class="tab" data-tab="highlights">Highlights</button>
 </div>
 
-<!-- USERNAME -->
 <div class="content active" id="username">
-<div class="card">
-<input id="baseName" placeholder="Taj" />
+<input id="baseName" placeholder="Enter base name" />
 
 <div class="mode">
 <label><input type="radio" checked> Self Branding</label>
@@ -169,9 +96,11 @@ color:#9aa4bf
 
 <button class="primary" onclick="generate()">Generate</button>
 <button class="secondary" onclick="resetSession()">Reset Session</button>
-<button class="secondary" onclick="generateMore()">Generate 5 More</button>
 
 <div id="results"></div>
+
+<div class="load-more">
+<button class="secondary" onclick="generateMore()">Generate 5 More</button>
 </div>
 </div>
 
@@ -181,7 +110,6 @@ color:#9aa4bf
 </div>
 
 <script>
-/* TAB LOGIC */
 const tabs=document.querySelectorAll('.tab');
 const contents=document.querySelectorAll('.content');
 tabs.forEach(t=>{
@@ -197,8 +125,7 @@ let allResults=[],index=0;
 
 function resetSession(){
 document.getElementById('results').innerHTML='';
-allResults=[];
-index=0;
+allResults=[];index=0;
 }
 
 function generate(){
@@ -217,7 +144,6 @@ if(base.startsWith('r')){
 pool.push(base+'raze','_'+base+'raze',base+'raze_');
 });
 }
-
 ['zen','core','shades','vibes','spark','stark','glitch','aura'].forEach(k=>{
 pool.push(base+k,base+'_'+k,'_'+base+k,base+k+'_');
 });
@@ -250,7 +176,5 @@ box.appendChild(row);
 }
 }
 </script>
-
 </body>
 </html>
-
