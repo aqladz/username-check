@@ -80,7 +80,64 @@ padding:12px 14px;border-radius:12px;margin-bottom:10px
 <input id="baseName" placeholder="Enter base name" />
 
 <div class="mode">
-+'_',
+<label><input type="radio" checked> Self Branding</label>
+<label><input type="radio"> A Brand</label>
+</div>
+
+<button class="primary" onclick="generate()">Generate</button>
+<button class="secondary" onclick="resetSession()">Reset Session</button>
+
+<div id="results"></div>
+<button class="secondary" onclick="generateMore()">Generate 5 More</button>
+</div>
+
+<div class="content" id="score"><div class="soon">Profile Score<br>Coming soon</div></div>
+<div class="content" id="bio"><div class="soon">AI Bio Generator<br>Coming soon</div></div>
+<div class="content" id="highlights"><div class="soon">Highlights & Covers<br>Coming soon</div></div>
+</div>
+
+<script>
+const tabs=document.querySelectorAll('.tab');
+const contents=document.querySelectorAll('.content');
+tabs.forEach(t=>{
+t.onclick=()=>{
+tabs.forEach(x=>x.classList.remove('active'));
+contents.forEach(c=>c.classList.remove('active'));
+t.classList.add('active');
+document.getElementById(t.dataset.tab).classList.add('active');
+}
+});
+
+let allResults=[],index=0;
+
+function resetSession(){
+document.getElementById('results').innerHTML='';
+allResults=[];index=0;
+}
+
+function generate(){
+resetSession();
+const base=document.getElementById('baseName').value.trim().toLowerCase();
+if(!base)return;
+
+let pool=[
+base+'x',base+'z',base+'dz',base+'zz',base+'_x','_'+base,
+base+'_01',base+'01',base+'0',base.replace(/(.)(.*)/,'$1.$2'),
+base+base.slice(-1)
+];
+
+if(base.startsWith('r')){
+['raze','_raze'].forEach(()=>{
+pool.push(base+'raze','_'+base+'raze',base+'raze_');
+});
+}
+  ['zen','core','shades','vibes','spark','stark','glitch','aura'].forEach(k=>{
+pool.push(base+k,base+'_'+k,'_'+base+k,base+k+'_');
+});
+
+pool.push(
+'Mr.'+base,
+'Mr.'+base+'_',
 'og.'+base,
 '.'+base+'.',
 base+'.online',
