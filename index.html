@@ -43,7 +43,6 @@
       margin-bottom: 20px;
     }
 
-    /* Tabs */
     .tabs {
       display: flex;
       gap: 8px;
@@ -149,7 +148,6 @@
     <button class="tab" data-tab="highlights">Highlights</button>
   </div>
 
-  <!-- USERNAME TOOL -->
   <div class="content active" id="username">
     <input id="baseName" placeholder="Enter base name" />
 
@@ -202,16 +200,37 @@
     const mode = document.querySelector('input[name="mode"]:checked').value;
     const container = document.getElementById('results');
 
+    // 🔒 EXISTING 10 OUTPUTS — UNTOUCHED
     const selfPool = [
-      base + 'x', base + 'z', base + 'dz', base + 'zz',
-      base + '_x', '_' + base, base + '_01', base + '01', base + '0',
+      base + 'x',
+      base + 'z',
+      base + 'dz',
+      base + 'zz',
+      base + '_x',
+      '_' + base,
+      base + '_01',
+      base + '01',
+      base + '0',
       base.replace(/(.)(.*)/,'$1.$2')
     ];
 
+    // ➕ NEW RULE: double last letter
+    const lastChar = base.slice(-1);
+    const doubleLast = base + lastChar;
+
+    // add safely without touching existing logic
+    selfPool.push(doubleLast);
+
     const brandPool = [
-      base + 'studio', base + 'hq', base + 'official',
-      base + 'plus', 'get' + base, base + '.com',
-      base + '.io', base + '.app', base + 'co'
+      base + 'studio',
+      base + 'hq',
+      base + 'official',
+      base + 'plus',
+      'get' + base,
+      base + '.com',
+      base + '.io',
+      base + '.app',
+      base + 'co'
     ];
 
     const pool = mode === 'self' ? selfPool : brandPool;
@@ -220,17 +239,20 @@
     for (let name of pool) {
       if (generated.size >= 50 || added >= count) break;
       if (generated.has(name)) continue;
+
       generated.add(name);
       added++;
 
       const row = document.createElement('div');
       row.className = 'result';
       row.innerHTML = `<span>${name}</span><span class="copy">Copy</span>`;
+
       row.querySelector('.copy').onclick = () => {
         navigator.clipboard.writeText(name);
         row.querySelector('.copy').innerText = 'Copied';
         setTimeout(() => row.querySelector('.copy').innerText = 'Copy', 1000);
       };
+
       container.appendChild(row);
     }
   }
@@ -239,5 +261,6 @@
 </body>
 </html>
 
-
+ 
+  
 
