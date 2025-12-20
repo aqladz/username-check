@@ -1,148 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Username Check</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="UTF-8" />
+<title>Username Check</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: 'Inter', sans-serif;
-      background: linear-gradient(135deg, #0b1220, #0e1b2a);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-    }
-    .card {
-      width: 92%;
-      max-width: 440px;
-      background: rgba(255,255,255,0.06);
-      backdrop-filter: blur(14px);
-      border-radius: 18px;
-      padding: 28px;
-      box-shadow: 0 25px 60px rgba(0,0,0,0.4);
-    }
-    h1 { margin: 0 0 8px; font-size: 26px; text-align: center; }
-    .subtitle { text-align: center; font-size: 14px; color: #b8c2d8; margin-bottom: 20px; }
-    input {
-      width: 100%; padding: 14px; border-radius: 12px;
-      border: none; outline: none; font-size: 15px;
-      margin-bottom: 14px; background: rgba(255,255,255,0.08); color: #fff;
-    }
-    button {
-      width: 100%; padding: 14px; border-radius: 14px;
-      border: none; background: linear-gradient(135deg,#6366f1,#22d3ee);
-      color: #02131a; font-weight: 700; font-size: 16px; cursor: pointer;
-      margin-bottom: 12px;
-    }
-    .result {
-      display: flex; justify-content: space-between; align-items: center;
-      background: rgba(255,255,255,0.07);
-      padding: 12px 14px; border-radius: 12px; margin-bottom: 10px;
-    }
-    .copy { color: #8b8cff; font-weight: 600; cursor: pointer; }
-  </style>
+<style>
+*{box-sizing:border-box}
+body{
+margin:0;
+min-height:100vh;
+font-family:'Inter',sans-serif;
+background:linear-gradient(135deg,#0b1220,#0e1b2a);
+display:flex;
+align-items:center;
+justify-content:center;
+color:#fff
+}
+.card{
+width:92%;
+max-width:440px;
+background:rgba(255,255,255,.06);
+backdrop-filter:blur(14px);
+border-radius:18px;
+padding:28px;
+box-shadow:0 25px 60px rgba(0,0,0,.4)
+}
+h1{text-align:center;margin:0 0 6px}
+.subtitle{text-align:center;color:#b8c2d8;font-size:14px;margin-bottom:18px}
+.tabs{display:flex;gap:8px;margin-bottom:18px}
+.tab{
+flex:1;padding:10px;border-radius:10px;
+background:rgba(255,255,255,.08);
+border:none;color:#cfd6ea;font-weight:600;cursor:pointer
+}
+.tab.active{background:linear-gradient(135deg,#22c55e,#16a34a);color:#022c22}
+.content{display:none}
+.content.active{display:block}
+input{
+width:100%;padding:14px;border-radius:12px;
+border:none;background:rgba(255,255,255,.08);
+color:#fff;font-size:15px;margin-bottom:14px
+}
+.mode{display:flex;gap:14px;margin-bottom:16px}
+button.primary{
+width:100%;padding:14px;border-radius:14px;
+border:none;background:linear-gradient(135deg,#6366f1,#22d3ee);
+color:#02131a;font-weight:700;font-size:16px;cursor:pointer;margin-bottom:12px
+}
+button.secondary{
+width:100%;padding:12px;border-radius:14px;
+border:1px dashed rgba(255,255,255,.25);
+background:transparent;color:#9fb0ff;cursor:pointer;margin-bottom:14px
+}
+.result{
+display:flex;justify-content:space-between;align-items:center;
+background:rgba(255,255,255,.07);
+padding:12px 14px;border-radius:12px;margin-bottom:10px
+}
+.copy{color:#8b8cff;font-weight:600;cursor:pointer}
+.soon{text-align:center;padding:40px 0;color:#b8c2d8}
+</style>
 </head>
-<body>
 
+<body>
 <div class="card">
-  <h1>Username Check</h1>
-  <input id="baseName" placeholder="Enter base name" />
-  <button onclick="generate()">Generate</button>
-  <div id="results"></div>
+<h1>Username Check</h1>
+<div class="subtitle">Check username availability across platforms</div>
+
+<div class="tabs">
+<button class="tab active" data-tab="username">Username</button>
+<button class="tab" data-tab="score">Profile Score</button>
+<button class="tab" data-tab="bio">AI Bio</button>
+<button class="tab" data-tab="highlights">Highlights</button>
+</div>
+
+<div class="content active" id="username">
+<input id="baseName" placeholder="Enter base name" />
+
+<div class="mode">
+<label><input type="radio" name="mode" checked> Self Branding</label>
+<label><input type="radio" name="mode"> A Brand</label>
+</div>
+
+<button class="primary" onclick="generate()">Generate</button>
+<button class="secondary" onclick="resetSession()">Reset Session</button>
+
+<div id="results"></div>
+<button class="secondary" onclick="generateMore()">Generate 5 More</button>
+</div>
+
+<div class="content" id="score"><div class="soon">Profile Score<br>Coming soon</div></div>
+<div class="content" id="bio"><div class="soon">AI Bio Generator<br>Coming soon</div></div>
+<div class="content" id="highlights"><div class="soon">Highlights & Covers<br>Coming soon</div></div>
 </div>
 
 <script>
-  let generated = new Set();
+const tabs=document.querySelectorAll('.tab');
+const contents=document.querySelectorAll('.content');
+tabs.forEach(t=>{
+t.onclick=()=>{
+tabs.forEach(x=>x.classList.remove('active'));
+contents.forEach(c=>c.classList.remove('active'));
+t.classList.add('active');
+document.getElementById(t.dataset.tab).classList.add('active');
+}
+});
 
-  function generate() {
-    const base = document.getElementById('baseName').value.trim().toLowerCase();
-    if (!base) return;
+let allResults=[],index=0;
 
-    const container = document.getElementById('results');
-    container.innerHTML = '';
-    generated.clear();
+function resetSession(){
+document.getElementById('results').innerHTML='';
+allResults=[];index=0;
+}
 
-    // 🔒 BASELINE LOGIC (UNCHANGED)
-    const pool = [
-      base + 'x',
-      base + 'z',
-      base + 'dz',
-      base + 'zz',
-      base + '_x',
-      '_' + base,
-      base + '_01',
-      base + '01',
-      base + '0',
-      base.replace(/(.)(.*)/,'$1.$2'),
-      base + base.slice(-1)
-    ];
+function generate(){
+resetSession();
+const base=document.getElementById('baseName').value.trim().toLowerCase();
+if(!base)return;
 
-    // 🔒 raze (only for r*)
-    if (base.startsWith('r')) {
-      [
-        base + 'raze',
-        base + '_raze',
-        '_' + base + 'raze',
-        base + 'raze_'
-      ].forEach(v => {
-        if (!v.includes('__')) pool.push(v);
-      });
-    }
+const pool=[
+base+'x',base+'z',base+'dz',base+'zz',base+'_x','_'+base,
+base+'_01',base+'01',base+'0',base.replace(/(.)(.*)/,'$1.$2'),
+base+base.slice(-1)
+];
 
-    // 🔒 existing global styles
-    ['zen','core','shades','vibes','spark','stark','glitch'].forEach(k => {
-      [
-        base + k,
-        base + '_' + k,
-        '_' + base + k,
-        base + k + '_'
-      ].forEach(v => {
-        if (!v.includes('__')) pool.push(v);
-      });
-    });
+if(base.startsWith('r')){
+['raze','_raze'].forEach(x=>{
+pool.push(base+x,'_'+base+'raze',base+'raze_');
+});
+}
 
-    // ➕ NEW: aura (GLOBAL, 4 styles)
-    [
-      base + 'aura',
-      base + '_aura',
-      '_' + base + 'aura',
-      base + 'aura_'
-    ].forEach(v => {
-      if (!v.includes('__')) pool.push(v);
-    });
+['zen','core','shades','vibes','spark','stark','glitch','aura'].forEach(k=>{
+pool.push(base+k,base+'_'+k,'_'+base+k,base+k+'_');
+});
 
-    // ➕ NEW: Mr. prefix (GLOBAL, ONLY 2 styles)
-    pool.push('Mr.' + base);
-    pool.push('Mr.' + base + '_');
+pool.push('Mr.'+base,'Mr.'+base+'_');
 
-    // render
-    pool.forEach(name => {
-      if (generated.has(name)) return;
-      generated.add(name);
+allResults=[...new Set(pool.filter(v=>!v.includes('__')))];
+generateMore();
+}
 
-      const row = document.createElement('div');
-      row.className = 'result';
-      row.innerHTML = `<span>${name}</span><span class="copy">Copy</span>`;
-      row.querySelector('.copy').onclick = () => {
-        navigator.clipboard.writeText(name);
-        row.querySelector('.copy').innerText = 'Copied';
-        setTimeout(() => row.querySelector('.copy').innerText = 'Copy', 1000);
-      };
-      container.appendChild(row);
-    });
-  }
+function generateMore(){
+const box=document.getElementById('results');
+for(let i=0;i<5 && index<allResults.length;i++,index++){
+const raw=allResults[index];
+const row=document.createElement('div');
+row.className='result';
+row.innerHTML=`<span>@${raw}</span><span class="copy">Copy</span>`;
+row.querySelector('.copy').onclick=()=>{
+navigator.clipboard.writeText(raw);
+};
+box.appendChild(row);
+}
+}
 </script>
-
 </body>
 </html>
 
- 
-  
 
