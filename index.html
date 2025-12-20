@@ -80,8 +80,8 @@ padding:12px 14px;border-radius:12px;margin-bottom:10px
 <input id="baseName" placeholder="Enter base name" />
 
 <div class="mode">
-<label><input type="radio" name="mode" checked> Self Branding</label>
-<label><input type="radio" name="mode"> A Brand</label>
+<label><input type="radio" checked> Self Branding</label>
+<label><input type="radio"> A Brand</label>
 </div>
 
 <button class="primary" onclick="generate()">Generate</button>
@@ -120,15 +120,15 @@ resetSession();
 const base=document.getElementById('baseName').value.trim().toLowerCase();
 if(!base)return;
 
-const pool=[
+let pool=[
 base+'x',base+'z',base+'dz',base+'zz',base+'_x','_'+base,
 base+'_01',base+'01',base+'0',base.replace(/(.)(.*)/,'$1.$2'),
 base+base.slice(-1)
 ];
 
 if(base.startsWith('r')){
-['raze','_raze'].forEach(x=>{
-pool.push(base+x,'_'+base+'raze',base+'raze_');
+['raze','_raze'].forEach(()=>{
+pool.push(base+'raze','_'+base+'raze',base+'raze_');
 });
 }
 
@@ -136,7 +136,15 @@ pool.push(base+x,'_'+base+'raze',base+'raze_');
 pool.push(base+k,base+'_'+k,'_'+base+k,base+k+'_');
 });
 
-pool.push('Mr.'+base,'Mr.'+base+'_');
+pool.push(
+'Mr.'+base,
+'Mr.'+base+'_',
+'og.'+base,
+'.'+base+'.',
+base+'.online',
+base+'.official',
+base+'.official_'
+);
 
 allResults=[...new Set(pool.filter(v=>!v.includes('__')))];
 generateMore();
@@ -158,5 +166,3 @@ box.appendChild(row);
 </script>
 </body>
 </html>
-
-
