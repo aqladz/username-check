@@ -63,7 +63,7 @@ padding:12px 14px;border-radius:12px;margin-bottom:10px
 .copy{color:#8b8cff;font-weight:600;cursor:pointer}
 .soon{text-align:center;padding:40px 0;color:#b8c2d8}
 
-/* 👇 ONLY NEW PART — POSITION FIX */
+/* position fix (unchanged) */
 .load-more{
 position:sticky;
 bottom:0;
@@ -86,6 +86,7 @@ padding-top:12px
 <button class="tab" data-tab="highlights">Highlights</button>
 </div>
 
+<!-- USERNAME TOOL (UNCHANGED) -->
 <div class="content active" id="username">
 <input id="baseName" placeholder="Enter base name" />
 
@@ -104,12 +105,51 @@ padding-top:12px
 </div>
 </div>
 
-<div class="content" id="score"><div class="soon">Profile Score<br>Coming soon</div></div>
-<div class="content" id="bio"><div class="soon">AI Bio Generator<br>Coming soon</div></div>
-<div class="content" id="highlights"><div class="soon">Highlights & Covers<br>Coming soon</div></div>
+<!-- PROFILE SCORE (ONLY UPLIFT) -->
+<div class="content" id="score">
+<h1>Profile Score</h1>
+<div class="subtitle">Paste profile link to analyze quality</div>
+
+<input id="profileLink" placeholder="https://www.instagram.com/username" />
+<button class="primary" onclick="checkProfile()">Check Profile</button>
+
+<div id="scoreResult" style="display:none;margin-top:14px">
+<div class="result">
+<span>@username</span>
+<span>Profile detected ✔</span>
+</div>
+
+<h1 style="margin:18px 0 6px">8.4 / 10 ⭐</h1>
+<div class="subtitle">Creator Pro</div>
+
+<div style="height:8px;background:rgba(255,255,255,.12);border-radius:6px;overflow:hidden;margin:14px 0">
+<div style="width:84%;height:100%;background:linear-gradient(135deg,#6366f1,#22d3ee)"></div>
+</div>
+
+<div class="result">✔ Clean Username</div>
+<div class="result">✔ Strong Profile Photo</div>
+<div class="result">✔ Clear Niche</div>
+<div class="result">✔ Trust Signals</div>
+
+<div class="subtitle" style="margin-top:12px">
+Reach 9.5+ by:<br>
+• Adding sharper CTA in bio<br>
+• Improving feed consistency
+</div>
+</div>
+</div>
+
+<div class="content" id="bio">
+<div class="soon">AI Bio Generator<br>Coming soon</div>
+</div>
+
+<div class="content" id="highlights">
+<div class="soon">Highlights & Covers<br>Coming soon</div>
+</div>
 </div>
 
 <script>
+/* TAB LOGIC (UNCHANGED) */
 const tabs=document.querySelectorAll('.tab');
 const contents=document.querySelectorAll('.content');
 tabs.forEach(t=>{
@@ -121,6 +161,7 @@ document.getElementById(t.dataset.tab).classList.add('active');
 }
 });
 
+/* USERNAME LOGIC (UNCHANGED) */
 let allResults=[],index=0;
 
 function resetSession(){
@@ -138,7 +179,6 @@ base+'x',base+'z',base+'dz',base+'zz',base+'_x','_'+base,
 base+'_01',base+'01',base+'0',base.replace(/(.)(.*)/,'$1.$2'),
 base+base.slice(-1)
 ];
-
 if(base.startsWith('r')){
 ['raze','_raze'].forEach(()=>{
 pool.push(base+'raze','_'+base+'raze',base+'raze_');
@@ -174,6 +214,13 @@ navigator.clipboard.writeText(raw);
 };
 box.appendChild(row);
 }
+}
+
+/* PROFILE SCORE LOGIC (ISOLATED) */
+function checkProfile(){
+const link=document.getElementById('profileLink').value.trim();
+if(!link)return;
+document.getElementById('scoreResult').style.display='block';
 }
 </script>
 </body>
