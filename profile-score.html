@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Profile Score</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #0b1220, #0e1b2a);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+    }
+
+    .card {
+      width: 92%;
+      max-width: 420px;
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(14px);
+      border-radius: 18px;
+      padding: 26px;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.45);
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      text-align: center;
+      font-size: 22px;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 13px;
+      color: #b8c2d8;
+      margin-bottom: 18px;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      border: none;
+      outline: none;
+      font-size: 15px;
+      margin-bottom: 12px;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      border: none;
+      background: #4f7cff;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .confirm {
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.08);
+      font-size: 14px;
+      text-align: center;
+      display: none;
+    }
+
+    .result {
+      margin-top: 18px;
+      display: none;
+      text-align: center;
+    }
+
+    .score {
+      font-size: 36px;
+      font-weight: 700;
+      margin: 8px 0;
+    }
+
+    .progress {
+      height: 8px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 6px;
+      overflow: hidden;
+      margin: 14px 0;
+    }
+
+    .bar {
+      height: 100%;
+      width: 84%;
+      background: linear-gradient(90deg, #4f7cff, #6fd3ff);
+    }
+
+    .badges {
+      text-align: left;
+      margin-top: 12px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .tips {
+      margin-top: 14px;
+      font-size: 13px;
+      color: #c7d1ea;
+      text-align: left;
+    }
+
+    .back {
+      display: block;
+      margin-top: 18px;
+      text-align: center;
+      font-size: 13px;
+      color: #9fb2ff;
+      text-decoration: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="card">
+    <h1>Profile Score</h1>
+    <div class="subtitle">Paste profile link to analyze quality</div>
+
+    <input id="linkInput" placeholder="https://instagram.com/username" />
+    <button onclick="fetchProfile()">Check Profile</button>
+
+    <div id="confirmBox" class="confirm">
+      @username ✔ Profile detected
+    </div>
+
+    <div id="resultBox" class="result">
+      <div class="score">8.4 / 10 ⭐</div>
+      <div>Creator Pro</div>
+
+      <div class="progress">
+        <div class="bar"></div>
+      </div>
+
+      <div class="badges">
+        ✔ Clean Username<br>
+        ✔ Strong Profile Photo<br>
+        ✔ Clear Niche<br>
+        ✔ Trust Signals
+      </div>
+
+      <div class="tips">
+        Reach 9.5+ by:<br>
+        • Adding sharper CTA in bio<br>
+        • Improving feed consistency
+      </div>
+    </div>
+
+    <a class="back" href="index.html">← Back to Username Tool</a>
+  </div>
+
+  <script>
+    function fetchProfile() {
+      const link = document.getElementById("linkInput").value.trim();
+      if (!link) return;
+
+      document.getElementById("confirmBox").style.display = "block";
+
+      setTimeout(() => {
+        document.getElementById("resultBox").style.display = "block";
+      }, 700);
+    }
+  </script>
+
+</body>
+</html>
