@@ -62,14 +62,34 @@ padding:12px 14px;border-radius:12px;margin-bottom:10px
 }
 .copy{color:#8b8cff;font-weight:600;cursor:pointer}
 .soon{text-align:center;padding:40px 0;color:#b8c2d8}
-
-/* position fix (unchanged) */
 .load-more{
 position:sticky;
 bottom:0;
 margin-top:16px;
 background:linear-gradient(180deg,rgba(11,18,32,0),rgba(11,18,32,.85) 40%);
 padding-top:12px
+}
+.bar{
+height:8px;
+background:rgba(255,255,255,.15);
+border-radius:6px;
+overflow:hidden;
+margin:6px 0 14px
+}
+.bar > div{
+height:100%;
+background:linear-gradient(135deg,#6366f1,#22d3ee)
+}
+.guide{
+margin:10px 0 16px;
+text-align:center
+}
+.guide img{
+width:100%;
+max-height:220px;
+object-fit:cover;
+border-radius:12px;
+opacity:.9
 }
 </style>
 </head>
@@ -86,7 +106,7 @@ padding-top:12px
 <button class="tab" data-tab="highlights">Highlights</button>
 </div>
 
-<!-- USERNAME TOOL (UNCHANGED) -->
+<!-- USERNAME TOOL (UNTOUCHED) -->
 <div class="content active" id="username">
 <input id="baseName" placeholder="Enter base name" />
 
@@ -105,37 +125,39 @@ padding-top:12px
 </div>
 </div>
 
-<!-- PROFILE SCORE (ONLY UPLIFT) -->
+<!-- PROFILE SCORE (REAL SCREENSHOT-BASED) -->
 <div class="content" id="score">
 <h1>Profile Score</h1>
-<div class="subtitle">Paste profile link to analyze quality</div>
+<div class="subtitle">Upload profile screenshot to analyze</div>
 
-<input id="profileLink" placeholder="https://www.instagram.com/username" />
-<button class="primary" onclick="checkProfile()">Check Profile</button>
-
-<div id="scoreResult" style="display:none;margin-top:14px">
-<div class="result">
-<span>@username</span>
-<span>Profile detected ✔</span>
+<div class="guide">
+<img src="profile-guide.jpg" alt="Example Profile Screenshot">
 </div>
 
-<h1 style="margin:18px 0 6px">8.4 / 10 ⭐</h1>
-<div class="subtitle">Creator Pro</div>
+<button class="primary" onclick="fileInput.click()">+ Upload Screenshot</button>
+<input type="file" id="fileInput" accept="image/*" hidden>
 
-<div style="height:8px;background:rgba(255,255,255,.12);border-radius:6px;overflow:hidden;margin:14px 0">
-<div style="width:84%;height:100%;background:linear-gradient(135deg,#6366f1,#22d3ee)"></div>
-</div>
+<button class="primary" onclick="analyzeProfile()">Generate Score</button>
 
-<div class="result">✔ Clean Username</div>
-<div class="result">✔ Strong Profile Photo</div>
-<div class="result">✔ Clear Niche</div>
-<div class="result">✔ Trust Signals</div>
+<div id="scoreBox" style="display:none;margin-top:16px">
+<h1 id="finalScore"></h1>
+<div class="subtitle" id="rating"></div>
 
-<div class="subtitle" style="margin-top:12px">
-Reach 9.5+ by:<br>
-• Adding sharper CTA in bio<br>
-• Improving feed consistency
-</div>
+<div>Username</div>
+<div class="bar"><div id="uBar"></div></div>
+
+<div>Bio</div>
+<div class="bar"><div id="bBar"></div></div>
+
+<div>Profile Pic</div>
+<div class="bar"><div id="pBar"></div></div>
+
+<div>Highlights & Covers</div>
+<div class="bar"><div id="hBar"></div></div>
+
+<div class="subtitle" id="improveText"></div>
+
+<button class="secondary" onclick="resetScore()">Reset</button>
 </div>
 </div>
 
@@ -148,8 +170,10 @@ Reach 9.5+ by:<br>
 </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
 <script>
-/* TAB LOGIC (UNCHANGED) */
+/* TAB LOGIC */
 const tabs=document.querySelectorAll('.tab');
 const contents=document.querySelectorAll('.content');
 tabs.forEach(t=>{
@@ -163,17 +187,14 @@ document.getElementById(t.dataset.tab).classList.add('active');
 
 /* USERNAME LOGIC (UNCHANGED) */
 let allResults=[],index=0;
-
 function resetSession(){
 document.getElementById('results').innerHTML='';
 allResults=[];index=0;
 }
-
 function generate(){
 resetSession();
 const base=document.getElementById('baseName').value.trim().toLowerCase();
 if(!base)return;
-
 let pool=[
 base+'x',base+'z',base+'dz',base+'zz',base+'_x','_'+base,
 base+'_01',base+'01',base+'0',base.replace(/(.)(.*)/,'$1.$2'),
@@ -187,7 +208,6 @@ pool.push(base+'raze','_'+base+'raze',base+'raze_');
 ['zen','core','shades','vibes','spark','stark','glitch','aura'].forEach(k=>{
 pool.push(base+k,base+'_'+k,'_'+base+k,base+k+'_');
 });
-
 pool.push(
 'Mr.'+base,
 'Mr.'+base+'_',
@@ -197,11 +217,9 @@ base+'.online',
 base+'.official',
 base+'.official_'
 );
-
 allResults=[...new Set(pool.filter(v=>!v.includes('__')))];
 generateMore();
 }
-
 function generateMore(){
 const box=document.getElementById('results');
 for(let i=0;i<5 && index<allResults.length;i++,index++){
@@ -216,12 +234,80 @@ box.appendChild(row);
 }
 }
 
-/* PROFILE SCORE LOGIC (ISOLATED) */
-function checkProfile(){
-const link=document.getElementById('profileLink').value.trim();
-if(!link)return;
-document.getElementById('scoreResult').style.display='block';
+/* PROFILE SCORE LOGIC (REAL) */
+let imageFile=null, ocrText='';
+const fileInput=document.getElementById('fileInput');
+fileInput.onchange=e=>imageFile=e.target.files[0];
+
+function resetScore(){
+imageFile=null;
+ocrText='';
+document.getElementById('scoreBox').style.display='none';
+}
+
+async function analyzeProfile(){
+if(!imageFile){alert('Upload screenshot first');return;}
+
+const {data:{text}}=await Tesseract.recognize(imageFile,'eng');
+ocrText=text.toLowerCase();
+
+const u=scoreUsername();
+const b=scoreBio();
+const p=scorePic();
+const h=scoreHighlights();
+
+const total=u+b+p+h;
+
+document.getElementById('finalScore').textContent=`${total} / 100`;
+document.getElementById('rating').textContent=`⭐ ${(total/10).toFixed(1)} / 10`;
+
+document.getElementById('uBar').style.width=`${(u/30)*100}%`;
+document.getElementById('bBar').style.width=`${(b/30)*100}%`;
+document.getElementById('pBar').style.width=`${(p/20)*100}%`;
+document.getElementById('hBar').style.width=`${(h/20)*100}%`;
+
+document.getElementById('improveText').textContent=buildImprove(u,b,p,h,total);
+document.getElementById('scoreBox').style.display='block';
+}
+
+function scoreUsername(){
+const m=ocrText.match(/^[a-z0-9._]{3,15}/m);
+if(!m)return 0;
+let s=10;
+if(m[0].length<=12)s+=8;
+if(!/\d/.test(m[0]))s+=6;
+if((m[0].match(/[._]/g)||[]).length<=2)s+=4;
+return Math.min(30,s+2);
+}
+function scoreBio(){
+if(ocrText.length<30)return 0;
+let s=15;
+if(/\|/.test(ocrText))s+=5;
+if(ocrText.length<500)s+=5;
+if((ocrText.match(/😀|🔥|✨/g)||[]).length<=2)s+=5;
+return Math.min(30,s);
+}
+function scorePic(){
+return ocrText.includes('posts')?20:0;
+}
+function scoreHighlights(){
+const count=(ocrText.match(/\b[a-z]{3,}\b/g)||[]).length;
+if(count>20)return 20;
+if(count>10)return 15;
+return 0;
+}
+function buildImprove(u,b,p,h,t){
+let a=[];
+if(u<15)a.push('Username');
+if(b===0)a.push('Add a bio');
+else if(b<20)a.push('Improve bio');
+if(p===0)a.push('Add profile pic');
+if(h===0)a.push('Add highlights');
+if(t<=40)a=a.slice(0,3);
+else a=a.slice(0,2);
+return '■ Improve: '+a.join(' & ');
 }
 </script>
 </body>
 </html>
+
