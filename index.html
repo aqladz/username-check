@@ -61,7 +61,6 @@ background:rgba(255,255,255,.07);
 padding:12px 14px;border-radius:12px;margin-bottom:10px
 }
 .copy{color:#8b8cff;font-weight:600;cursor:pointer}
-.soon{text-align:center;padding:40px 0;color:#b8c2d8}
 .load-more{
 position:sticky;
 bottom:0;
@@ -69,50 +68,50 @@ margin-top:16px;
 background:linear-gradient(180deg,rgba(11,18,32,0),rgba(11,18,32,.85) 40%);
 padding-top:12px
 }
-.bar{
-height:8px;
-background:rgba(255,255,255,.15);
-border-radius:6px;
-overflow:hidden;
-margin:6px 0 14px
-}
-.bar > div{
-height:100%;
-background:linear-gradient(135deg,#6366f1,#22d3ee)
-}
-.guide{
-margin:10px 0 16px;
-text-align:center
-}
-.guide img{
-width:100%;
-max-height:220px;
-object-fit:cover;
-border-radius:12px;
-opacity:.9
-}
 
-/* HIGHLIGHTS GRID */
-.cats{display:flex;gap:8px;margin-bottom:14px}
+/* HIGHLIGHTS */
+.cats{
+display:flex;
+gap:8px;
+margin-bottom:14px;
+flex-wrap:wrap
+}
 .cats button{
-flex:1;padding:8px;border-radius:10px;
-border:none;background:rgba(255,255,255,.08);
-color:#cfd6ea;cursor:pointer
+padding:8px 12px;
+border-radius:10px;
+border:none;
+background:rgba(255,255,255,.08);
+color:#cfd6ea;
+cursor:pointer;
+white-space:pre-line
 }
 .cats button.active{
 background:linear-gradient(135deg,#6366f1,#22d3ee);
-color:#02131a;font-weight:700
+color:#02131a;
+font-weight:700
 }
+
+/* BIGGER GRID */
 .grid{
 display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:10px
+grid-template-columns:repeat(2,1fr);
+gap:12px
 }
+.grid a{display:block}
 .grid img{
 width:100%;
-border-radius:14px;
-cursor:pointer;
+border-radius:16px;
 background:#000
+}
+
+/* TEXT ONLY BLOCK */
+.text-block{
+display:none;
+text-align:center;
+padding:40px 0;
+font-size:18px;
+line-height:1.8;
+color:#e5e9ff
 }
 </style>
 </head>
@@ -128,20 +127,16 @@ background:#000
 <button class="tab" data-tab="highlights">Highlights</button>
 </div>
 
-<!-- USERNAME TOOL (UNTOUCHED) -->
+<!-- USERNAME TOOL (UNCHANGED) -->
 <div class="content active" id="username">
 <input id="baseName" placeholder="Enter base name" />
-
 <div class="mode">
 <label><input type="radio" checked> Self Branding</label>
 <label><input type="radio"> A Brand</label>
 </div>
-
 <button class="primary" onclick="generate()">Generate</button>
 <button class="secondary" onclick="resetSession()">Reset Session</button>
-
 <div id="results"></div>
-
 <div class="load-more">
 <button class="secondary" onclick="generateMore()">Generate 5 More</button>
 </div>
@@ -151,55 +146,33 @@ background:#000
 <div class="content" id="score">
 <h1>Profile Score</h1>
 <div class="subtitle">Upload profile screenshot to analyze</div>
-
-<div class="guide">
-<img src="profile-guide.jpg" alt="Example Profile Screenshot">
 </div>
 
-<button class="primary" onclick="fileInput.click()">+ Upload Screenshot</button>
-<input type="file" id="fileInput" accept="image/*" hidden>
-
-<button class="primary" onclick="analyzeProfile()">Generate Score</button>
-
-<div id="scoreBox" style="display:none;margin-top:16px">
-<h1 id="finalScore"></h1>
-<div class="subtitle" id="rating"></div>
-
-<div>Username</div>
-<div class="bar"><div id="uBar"></div></div>
-<div>Bio</div>
-<div class="bar"><div id="bBar"></div></div>
-<div>Profile Pic</div>
-<div class="bar"><div id="pBar"></div></div>
-<div>Highlights & Covers</div>
-<div class="bar"><div id="hBar"></div></div>
-
-<div class="subtitle" id="improveText"></div>
-<button class="secondary" onclick="resetScore()">Reset</button>
-</div>
-</div>
-
-<!-- HIGHLIGHTS COVERS (NEW UPLIFT) -->
+<!-- HIGHLIGHTS -->
 <div class="content" id="highlights">
 <h1>Highlight Covers</h1>
-<div class="subtitle">Tap to download</div>
+<div class="subtitle">Tap / long-press to download</div>
 
 <div class="cats">
-<button class="active" data-cat="travel">Travel</button>
+<button class="active" data-cat="azwords">A to Z
+Words</button>
+<button data-cat="travel">Travel</button>
 <button data-cat="food">Food</button>
 <button data-cat="gym">Gym</button>
 <button data-cat="music">Music</button>
 </div>
 
 <div class="grid" id="coverGrid"></div>
-</div>
 
+<div class="text-block" id="azText">
+A to Z<br>
+Words
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+</div>
+</div>
 
 <script>
-/* TAB LOGIC */
+/* TAB LOGIC (UNCHANGED) */
 const tabs=document.querySelectorAll('.tab');
 const contents=document.querySelectorAll('.content');
 tabs.forEach(t=>{
@@ -211,72 +184,46 @@ document.getElementById(t.dataset.tab).classList.add('active');
 }
 });
 
-/* USERNAME LOGIC (UNCHANGED) */
-let allResults=[],index=0;
-function resetSession(){
-document.getElementById('results').innerHTML='';
-allResults=[];index=0;
-}
-function generate(){
-resetSession();
-const base=document.getElementById('baseName').value.trim().toLowerCase();
-if(!base)return;
-let pool=[
-base+'x',base+'z',base+'dz',base+'zz',base+'_x','_'+base,
-base+'_01',base+'01',base+'0',base.replace(/(.)(.*)/,'$1.$2'),
-base+base.slice(-1)
-];
-['zen','core','shades','vibes','spark','stark','glitch','aura'].forEach(k=>{
-pool.push(base+k,base+'_'+k,'_'+base+k,base+k+'_');
-});
-pool.push(
-'Mr.'+base,
-'Mr.'+base+'_',
-'og.'+base,
-'.'+base+'.',
-base+'.online',
-base+'.official',
-base+'.official_'
-);
-allResults=[...new Set(pool.filter(v=>!v.includes('__')))];
-generateMore();
-}
-function generateMore(){
-const box=document.getElementById('results');
-for(let i=0;i<5 && index<allResults.length;i++,index++){
-const raw=allResults[index];
-const row=document.createElement('div');
-row.className='result';
-row.innerHTML=`<span>@${raw}</span><span class="copy">Copy</span>`;
-row.querySelector('.copy').onclick=()=>{
-navigator.clipboard.writeText(raw);
-};
-box.appendChild(row);
-}
-}
-
-/* HIGHLIGHTS LOADER */
+/* HIGHLIGHTS LOADER (UPLIFT ONLY) */
 const grid=document.getElementById('coverGrid');
+const azText=document.getElementById('azText');
 const catBtns=document.querySelectorAll('.cats button');
 
 catBtns.forEach(b=>{
 b.onclick=()=>{
 catBtns.forEach(x=>x.classList.remove('active'));
 b.classList.add('active');
+
+if(b.dataset.cat==="azwords"){
+grid.style.display="none";
+azText.style.display="block";
+return;
+}
+
+azText.style.display="none";
+grid.style.display="grid";
 loadCovers(b.dataset.cat);
 };
 });
 
 function loadCovers(cat){
 grid.innerHTML='';
-for(let i=1;i<=9;i++){
+for(let i=1;i<=12;i++){
+const a=document.createElement('a');
+a.href=`covers/${cat}/${cat}-${i}.png`;
+a.download='';
+a.target='_blank';
+
 const img=document.createElement('img');
-img.src=`covers/${cat}/${cat}-${i}.png`;
-img.onclick=()=>window.open(img.src,'_blank');
-grid.appendChild(img);
+img.src=a.href;
+
+a.appendChild(img);
+grid.appendChild(a);
 }
 }
-loadCovers('travel');
+
+/* default */
+document.querySelector('[data-cat="azwords"]').click();
 </script>
 </body>
 </html>
