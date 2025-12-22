@@ -82,8 +82,7 @@ border-radius:10px;
 border:none;
 background:rgba(255,255,255,.08);
 color:#cfd6ea;
-cursor:pointer;
-white-space:pre-line
+cursor:pointer
 }
 .cats button.active{
 background:linear-gradient(135deg,#6366f1,#22d3ee);
@@ -103,16 +102,6 @@ width:100%;
 border-radius:16px;
 background:#000
 }
-
-/* TEXT ONLY BLOCK */
-.text-block{
-display:none;
-text-align:center;
-padding:40px 0;
-font-size:18px;
-line-height:1.8;
-color:#e5e9ff
-}
 </style>
 </head>
 
@@ -127,16 +116,20 @@ color:#e5e9ff
 <button class="tab" data-tab="highlights">Highlights</button>
 </div>
 
-<!-- USERNAME TOOL (UNCHANGED) -->
+<!-- USERNAME TOOL -->
 <div class="content active" id="username">
 <input id="baseName" placeholder="Enter base name" />
+
 <div class="mode">
 <label><input type="radio" checked> Self Branding</label>
 <label><input type="radio"> A Brand</label>
 </div>
+
 <button class="primary" onclick="generate()">Generate</button>
 <button class="secondary" onclick="resetSession()">Reset Session</button>
+
 <div id="results"></div>
+
 <div class="load-more">
 <button class="secondary" onclick="generateMore()">Generate 5 More</button>
 </div>
@@ -154,8 +147,7 @@ color:#e5e9ff
 <div class="subtitle">Tap / long-press to download</div>
 
 <div class="cats">
-<button class="active" data-cat="azwords">A to Z
-Words</button>
+<button class="active" data-cat="azwords">A to Z Words</button>
 <button data-cat="travel">Travel</button>
 <button data-cat="food">Food</button>
 <button data-cat="gym">Gym</button>
@@ -163,16 +155,11 @@ Words</button>
 </div>
 
 <div class="grid" id="coverGrid"></div>
-
-<div class="text-block" id="azText">
-A to Z<br>
-Words
-</div>
 </div>
 </div>
 
 <script>
-/* TAB LOGIC (UNCHANGED) */
+/* TAB LOGIC */
 const tabs=document.querySelectorAll('.tab');
 const contents=document.querySelectorAll('.content');
 tabs.forEach(t=>{
@@ -184,24 +171,58 @@ document.getElementById(t.dataset.tab).classList.add('active');
 }
 });
 
-/* HIGHLIGHTS LOADER (UPLIFT ONLY) */
+/* USERNAME LOGIC — FIXED SYNTAX ONLY */
+let allResults=[],index=0;
+function resetSession(){
+document.getElementById('results').innerHTML='';
+allResults=[];index=0;
+}
+function generate(){
+resetSession();
+const base=document.getElementById('baseName').value.trim().toLowerCase();
+if(!base)return;
+let pool=[
+base+'x',base+'z',base+'dz',base+'zz',base+'_x','_'+base,
+base+'_01',base+'01',base+'0',base.replace(/(.)(.*)/,'$1.$2'),
+base+base.slice(-1)
+];
+['zen','core','shades','vibes','spark','stark','glitch','aura'].forEach(k=>{
+pool.push(base+k,base+'_'+k,'_'+base+k,base+k+'_');
+});
+pool.push(
+'Mr.'+base,
+'Mr.'+base+'_',
+'og.'+base,
+'.'+base+'.',
+base+'.online',
+base+'.official',
+base+'.official_'
+);
+allResults=[...new Set(pool.filter(v=>!v.includes('__')))];
+generateMore();
+}
+function generateMore(){
+const box=document.getElementById('results');
+for(let i=0;i<5 && index<allResults.length;i++,index++){
+const raw=allResults[index];
+const row=document.createElement('div');
+row.className='result';
+row.innerHTML = `<span>@${raw}</span><span class="copy">Copy</span>`;
+row.querySelector('.copy').onclick=()=>{
+navigator.clipboard.writeText(raw);
+};
+box.appendChild(row);
+}
+}
+
+/* HIGHLIGHTS LOADER */
 const grid=document.getElementById('coverGrid');
-const azText=document.getElementById('azText');
 const catBtns=document.querySelectorAll('.cats button');
 
 catBtns.forEach(b=>{
 b.onclick=()=>{
 catBtns.forEach(x=>x.classList.remove('active'));
 b.classList.add('active');
-
-if(b.dataset.cat==="azwords"){
-grid.style.display="none";
-azText.style.display="block";
-return;
-}
-
-azText.style.display="none";
-grid.style.display="grid";
 loadCovers(b.dataset.cat);
 };
 });
@@ -222,10 +243,8 @@ grid.appendChild(a);
 }
 }
 
-/* default */
-document.querySelector('[data-cat="azwords"]').click();
+/* DEFAULT */
+loadCovers('azwords');
 </script>
 </body>
 </html>
-
-
