@@ -91,6 +91,29 @@ object-fit:cover;
 border-radius:12px;
 opacity:.9
 }
+
+/* HIGHLIGHTS GRID */
+.cats{display:flex;gap:8px;margin-bottom:14px}
+.cats button{
+flex:1;padding:8px;border-radius:10px;
+border:none;background:rgba(255,255,255,.08);
+color:#cfd6ea;cursor:pointer
+}
+.cats button.active{
+background:linear-gradient(135deg,#6366f1,#22d3ee);
+color:#02131a;font-weight:700
+}
+.grid{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:10px
+}
+.grid img{
+width:100%;
+border-radius:14px;
+cursor:pointer;
+background:#000
+}
 </style>
 </head>
 
@@ -102,7 +125,6 @@ opacity:.9
 <div class="tabs">
 <button class="tab active" data-tab="username">Username</button>
 <button class="tab" data-tab="score">Profile Score</button>
-<button class="tab" data-tab="bio">AI Bio</button>
 <button class="tab" data-tab="highlights">Highlights</button>
 </div>
 
@@ -125,7 +147,7 @@ opacity:.9
 </div>
 </div>
 
-<!-- PROFILE SCORE (REAL SCREENSHOT-BASED) -->
+<!-- PROFILE SCORE (UNCHANGED) -->
 <div class="content" id="score">
 <h1>Profile Score</h1>
 <div class="subtitle">Upload profile screenshot to analyze</div>
@@ -145,29 +167,33 @@ opacity:.9
 
 <div>Username</div>
 <div class="bar"><div id="uBar"></div></div>
-
 <div>Bio</div>
 <div class="bar"><div id="bBar"></div></div>
-
 <div>Profile Pic</div>
 <div class="bar"><div id="pBar"></div></div>
-
 <div>Highlights & Covers</div>
 <div class="bar"><div id="hBar"></div></div>
 
 <div class="subtitle" id="improveText"></div>
-
 <button class="secondary" onclick="resetScore()">Reset</button>
 </div>
 </div>
 
-<div class="content" id="bio">
-<div class="soon">AI Bio Generator<br>Coming soon</div>
+<!-- HIGHLIGHTS COVERS (NEW UPLIFT) -->
+<div class="content" id="highlights">
+<h1>Highlight Covers</h1>
+<div class="subtitle">Tap to download</div>
+
+<div class="cats">
+<button class="active" data-cat="travel">Travel</button>
+<button data-cat="food">Food</button>
+<button data-cat="gym">Gym</button>
+<button data-cat="music">Music</button>
 </div>
 
-<div class="content" id="highlights">
-<div class="soon">Highlights & Covers<br>Coming soon</div>
+<div class="grid" id="coverGrid"></div>
 </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
@@ -200,11 +226,6 @@ base+'x',base+'z',base+'dz',base+'zz',base+'_x','_'+base,
 base+'_01',base+'01',base+'0',base.replace(/(.)(.*)/,'$1.$2'),
 base+base.slice(-1)
 ];
-if(base.startsWith('r')){
-['raze','_raze'].forEach(()=>{
-pool.push(base+'raze','_'+base+'raze',base+'raze_');
-});
-}
 ['zen','core','shades','vibes','spark','stark','glitch','aura'].forEach(k=>{
 pool.push(base+k,base+'_'+k,'_'+base+k,base+k+'_');
 });
@@ -234,80 +255,30 @@ box.appendChild(row);
 }
 }
 
-/* PROFILE SCORE LOGIC (REAL) */
-let imageFile=null, ocrText='';
-const fileInput=document.getElementById('fileInput');
-fileInput.onchange=e=>imageFile=e.target.files[0];
+/* HIGHLIGHTS LOADER */
+const grid=document.getElementById('coverGrid');
+const catBtns=document.querySelectorAll('.cats button');
 
-function resetScore(){
-imageFile=null;
-ocrText='';
-document.getElementById('scoreBox').style.display='none';
+catBtns.forEach(b=>{
+b.onclick=()=>{
+catBtns.forEach(x=>x.classList.remove('active'));
+b.classList.add('active');
+loadCovers(b.dataset.cat);
+};
+});
+
+function loadCovers(cat){
+grid.innerHTML='';
+for(let i=1;i<=9;i++){
+const img=document.createElement('img');
+img.src=`covers/${cat}/${cat}-${i}.png`;
+img.onclick=()=>window.open(img.src,'_blank');
+grid.appendChild(img);
 }
-
-async function analyzeProfile(){
-if(!imageFile){alert('Upload screenshot first');return;}
-
-const {data:{text}}=await Tesseract.recognize(imageFile,'eng');
-ocrText=text.toLowerCase();
-
-const u=scoreUsername();
-const b=scoreBio();
-const p=scorePic();
-const h=scoreHighlights();
-
-const total=u+b+p+h;
-
-document.getElementById('finalScore').textContent=`${total} / 100`;
-document.getElementById('rating').textContent=`⭐ ${(total/10).toFixed(1)} / 10`;
-
-document.getElementById('uBar').style.width=`${(u/30)*100}%`;
-document.getElementById('bBar').style.width=`${(b/30)*100}%`;
-document.getElementById('pBar').style.width=`${(p/20)*100}%`;
-document.getElementById('hBar').style.width=`${(h/20)*100}%`;
-
-document.getElementById('improveText').textContent=buildImprove(u,b,p,h,total);
-document.getElementById('scoreBox').style.display='block';
 }
-
-function scoreUsername(){
-const m=ocrText.match(/^[a-z0-9._]{3,15}/m);
-if(!m)return 0;
-let s=10;
-if(m[0].length<=12)s+=8;
-if(!/\d/.test(m[0]))s+=6;
-if((m[0].match(/[._]/g)||[]).length<=2)s+=4;
-return Math.min(30,s+2);
-}
-function scoreBio(){
-if(ocrText.length<30)return 0;
-let s=15;
-if(/\|/.test(ocrText))s+=5;
-if(ocrText.length<500)s+=5;
-if((ocrText.match(/😀|🔥|✨/g)||[]).length<=2)s+=5;
-return Math.min(30,s);
-}
-function scorePic(){
-return ocrText.includes('posts')?20:0;
-}
-function scoreHighlights(){
-const count=(ocrText.match(/\b[a-z]{3,}\b/g)||[]).length;
-if(count>20)return 20;
-if(count>10)return 15;
-return 0;
-}
-function buildImprove(u,b,p,h,t){
-let a=[];
-if(u<15)a.push('Username');
-if(b===0)a.push('Add a bio');
-else if(b<20)a.push('Improve bio');
-if(p===0)a.push('Add profile pic');
-if(h===0)a.push('Add highlights');
-if(t<=40)a=a.slice(0,3);
-else a=a.slice(0,2);
-return '■ Improve: '+a.join(' & ');
-}
+loadCovers('travel');
 </script>
 </body>
 </html>
+
 
